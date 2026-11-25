@@ -1375,10 +1375,10 @@ const XHS_NOTES = {"xm:植物园":[["🌿厦门植物园｜第一次来抄这篇
 const XL_KEY='wish-xlinks'; function xlGet(){ try{ return JSON.parse(localStorage.getItem(XL_KEY)||'{}'); }catch(e){ return {}; } }
 function xlSet(o){ try{ localStorage.setItem(XL_KEY, JSON.stringify(o)); return true; }catch(e){ return false; } }
 function xhsBlock(id, more){ const b = XHS_NOTES[id]||[], u = xlGet()[id]||[];
-  const row = (t,meta,url,del) => '<li><a href="'+esc(url)+'" target="_blank" rel="noopener">'+esc(t)+'</a>'+(meta?'<span class="xm">'+esc(meta)+'</span>':'')+(del!=null?'<button type="button" class="xdel" data-xdel="'+esc(id)+'" data-xi="'+del+'" aria-label="删除">×</button>':'')+'</li>';
+  const row = (t,meta,url,del,nid) => '<li><a href="'+esc(url)+'" target="_blank" rel="noopener"'+(nid?' data-nid="'+esc(nid)+'"':'')+'>'+esc(t)+'</a>'+(meta?'<span class="xm">'+esc(meta)+'</span>':'')+(del!=null?'<button type="button" class="xdel" data-xdel="'+esc(id)+'" data-xi="'+del+'" aria-label="删除">×</button>':'')+'</li>';
   return '<div class="xhs"><p class="bt">小红书笔记</p><ul>'
     + u.map((x,j)=>row(x[0]||'我存的笔记','我加的',x[1],j)).join('')
-    + b.map(x=>row(x[0], x[1]&&x[1]!=='赞'?('♡ '+x[1]):'', 'https://www.xiaohongshu.com/explore/'+x[2]+'&xsec_source=pc_search', null)).join('')
+    + b.map(x=>row(x[0], x[1]&&x[1]!=='赞'?('♡ '+x[1]):'', 'https://www.xiaohongshu.com/explore/'+x[2]+'&xsec_source=pc_search', null, x[2].split('?')[0])).join('')
     + '</ul><div class="xrow"><a class="xmore" href="'+esc(more)+'" target="_blank" rel="noopener">在小红书搜更多 ›</a>'+(b.length?'<label class="xmore xph">＋ 加照片<input type="file" accept="image/*" multiple data-phadd="'+esc(id)+'" hidden></label>':'')+'</div>'
     + '<form class="xadd" data-xadd="'+esc(id)+'"><input type="text" placeholder="粘贴小红书分享链接,存到这里" aria-label="粘贴小红书链接"><button type="submit">添加</button></form></div>'; }
 let _phdb = null;
@@ -1407,6 +1407,11 @@ function phGo(el, step){ const id = el.dataset.ph, n = el.querySelectorAll(".ph-
   el.querySelector(".ph-track").style.transform = 'translateX('+(-i*100)+'%)'; el.querySelector(".ph-n").textContent = (i+1)+' / '+n; const nb = +(el.dataset.nb||0), del = el.querySelector("[data-phdel]"); if (del) del.hidden = i<nb; const cr = el.querySelector(".ph-cr"); if (cr) cr.innerHTML = phCredit(BUILTIN_PH[id]||[], i); }
 async function phAddFiles(el, files){ const id = el.dataset.ph; files = [...files].filter(f=>/^image\//.test(f.type)); if (!files.length) return;
   try { const arr = await phGet(id); for (const f of files) arr.push(await phShrink(f)); await phSet(id, arr); phIdx[id] = (BUILTIN_PH[id]||[]).length + arr.length-1; phMount(el); toast("照片已保存"); } catch(err){ toast("照片没存上,可能是浏览器空间不够"); } }
+document.addEventListener("click", e=>{ const a = e.target.closest && e.target.closest("a[data-nid]"); if (!a || !/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) return;
+  e.preventDefault(); const id = a.dataset.nid, web = a.href.replace("/explore/","/discovery/item/").replace("xsec_source=pc_search","xsec_source=app_share");
+  let left = false; const vis = ()=>{ if (document.hidden) left = true; }; document.addEventListener("visibilitychange", vis);
+  location.href = "xhsdiscover://item/"+id;
+  setTimeout(()=>{ document.removeEventListener("visibilitychange", vis); if (!left && !document.hidden) location.href = web; }, 1600); });
 document.addEventListener("submit", e=>{ const f = e.target.closest && e.target.closest("[data-xadd]"); if (!f) return; e.preventDefault();
   const v = f.querySelector("input").value.trim(), m = v.match(/https?:\/\/[^\s，。]+/); if (!m){ toast("没找到链接,复制分享内容再贴进来"); return; }
   let t = v.replace(m[0],"").replace(/复制.*$|打开【?小红书】?.*$/,"").replace(/^[\s\d.]+/,"").trim().slice(0,40);
