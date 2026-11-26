@@ -1377,10 +1377,10 @@ const IS_MOBILE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const XL_KEY='wish-xlinks'; function xlGet(){ try{ return JSON.parse(localStorage.getItem(XL_KEY)||'{}'); }catch(e){ return {}; } }
 function xlSet(o){ try{ localStorage.setItem(XL_KEY, JSON.stringify(o)); return true; }catch(e){ return false; } }
 function xhsBlock(id, more){ const b = XHS_NOTES[id]||[], u = xlGet()[id]||[];
-  const row = (t,meta,url,del,nid) => '<li><a href="'+esc(url)+'" target="_blank" rel="noopener"'+(nid?' data-nid="'+esc(nid)+'"':'')+'>'+esc(t)+'</a>'+(nid&&IS_MOBILE?'<a class="xapp" href="xhsdiscover://item/'+esc(nid)+'">App</a>':'')+(meta?'<span class="xm">'+esc(meta)+'</span>':'')+(del!=null?'<button type="button" class="xdel" data-xdel="'+esc(id)+'" data-xi="'+del+'" aria-label="删除">×</button>':'')+'</li>';
+  const row = (t,meta,url,del,nid) => '<li><a href="'+esc(url)+'" target="_blank" rel="noopener"'+(nid?' data-nid="'+esc(nid)+'"':'')+'>'+esc(t)+'</a>'+(meta?'<span class="xm">'+esc(meta)+'</span>':'')+(del!=null?'<button type="button" class="xdel" data-xdel="'+esc(id)+'" data-xi="'+del+'" aria-label="删除">×</button>':'')+'</li>';
   return '<div class="xhs"><p class="bt">小红书笔记</p><ul>'
     + u.map((x,j)=>row(x[0]||'我存的笔记','我加的',x[1],j)).join('')
-    + b.map(x=>row(x[0], x[1]&&x[1]!=='赞'?('♡ '+x[1]):'', 'https://www.xiaohongshu.com/explore/'+x[2]+'&xsec_source=pc_search', null, x[2].split('?')[0])).join('')
+    + b.map(x=>row(x[0], x[1]&&x[1]!=='赞'?('♡ '+x[1]):'', 'https://www.xiaohongshu.com/discovery/item/'+x[2].replace('?','?source=webshare&xhsshare=pc_web&')+'&xsec_source=pc_share', null, x[2].split('?')[0])).join('')
     + '</ul><div class="xrow"><a class="xmore" href="'+esc(more)+'" target="_blank" rel="noopener">在小红书搜更多 ›</a>'+(b.length?'<label class="xmore xph">＋ 加照片<input type="file" accept="image/*" multiple data-phadd="'+esc(id)+'" hidden></label>':'')+'</div>'
     + '<form class="xadd" data-xadd="'+esc(id)+'"><input type="text" placeholder="粘贴小红书分享链接,存到这里" aria-label="粘贴小红书链接"><button type="submit">添加</button></form></div>'; }
 let _phdb = null;
