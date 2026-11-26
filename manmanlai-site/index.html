@@ -1409,6 +1409,7 @@ function phGo(el, step){ const id = el.dataset.ph, n = el.querySelectorAll(".ph-
   el.querySelector(".ph-track").style.transform = 'translateX('+(-i*100)+'%)'; el.querySelector(".ph-n").textContent = (i+1)+' / '+n; const nb = +(el.dataset.nb||0), del = el.querySelector("[data-phdel]"); if (del) del.hidden = i<nb; const cr = el.querySelector(".ph-cr"); if (cr) cr.innerHTML = phCredit(BUILTIN_PH[id]||[], i); }
 async function phAddFiles(el, files){ const id = el.dataset.ph; files = [...files].filter(f=>/^image\//.test(f.type)); if (!files.length) return;
   try { const arr = await phGet(id); for (const f of files) arr.push(await phShrink(f)); await phSet(id, arr); phIdx[id] = (BUILTIN_PH[id]||[]).length + arr.length-1; phMount(el); toast("照片已保存"); } catch(err){ toast("照片没存上,可能是浏览器空间不够"); } }
+document.addEventListener("click", e=>{ const a = e.target.closest && e.target.closest("a[data-nid]"); if (!a || !IS_MOBILE) return; try{ navigator.clipboard.writeText(a.textContent+" "+a.href); }catch(err){} });
 document.addEventListener("submit", e=>{ const f = e.target.closest && e.target.closest("[data-xadd]"); if (!f) return; e.preventDefault();
   const v = f.querySelector("input").value.trim(), m = v.match(/https?:\/\/[^\s，。]+/); if (!m){ toast("没找到链接,复制分享内容再贴进来"); return; }
   let t = v.replace(m[0],"").replace(/复制.*$|打开【?小红书】?.*$/,"").replace(/^[\s\d.]+/,"").trim().slice(0,40);
